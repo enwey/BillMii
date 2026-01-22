@@ -2,6 +2,8 @@ package com.billmii.android.ui.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.billmii.android.data.service.BackupInterval as ServiceBackupInterval
+import com.billmii.android.data.service.BackupSchedulerService
 import com.billmii.android.ui.settings.BackupInterval
 import com.billmii.android.ui.settings.OCRMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +19,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    // TODO: Inject preferences repository
+    private val backupSchedulerService: BackupSchedulerService
 ) : ViewModel() {
     
     // OCR Settings
@@ -40,7 +42,13 @@ class SettingsViewModel @Inject constructor(
      */
     private fun loadSettings() {
         viewModelScope.launch {
-            // TODO: Load from DataStore or SharedPreferences
+            val schedule = backupSchedulerService.scheduleState.value
+            _autoBackup.value = schedule.enabled
+            _backupInterval.value = when (schedule.interval) {
+                ServiceBackupInterval.DAILY -> BackupInterval.DAILY
+                ServiceBackupInterval.WEEKLY -> BackupInterval.WEEKLY
+                ServiceBackupInterval.MONTHLY -> BackupInterval.MONTHLY
+            }
         }
     }
     
@@ -60,7 +68,16 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoBackup(enabled: Boolean) {
         _autoBackup.value = enabled
         viewModelScope.launch {
-            // TODO: Save to preferences
+            if (enabled) {
+                val interval = when (_backupInterval.value) {
+                    BackupInterval.DAILY -> ServiceBackupInterval.DAILY
+                    BackupInterval.WEEKLY -> ServiceBackupInterval.WEEKLY
+                    BackupInterval.MONTHLY -> ServiceBackupInterval.MONTHLY
+                }
+                backupSchedulerService.enableAutoBackup(interval)
+            } else {
+                backupSchedulerService.disableAutoBackup()
+            }
         }
     }
     
@@ -70,7 +87,14 @@ class SettingsViewModel @Inject constructor(
     fun updateBackupInterval(interval: BackupInterval) {
         _backupInterval.value = interval
         viewModelScope.launch {
-            // TODO: Save to preferences
+            if (_autoBackup.value) {
+                val serviceInterval = when (interval) {
+                    BackupInterval.DAILY -> ServiceBackupInterval.DAILY
+                    BackupInterval.WEEKLY -> ServiceBackupInterval.WEEKLY
+                    BackupInterval.MONTHLY -> ServiceBackupInterval.MONTHLY
+                }
+                backupSchedulerService.enableAutoBackup(serviceInterval)
+            }
         }
     }
 }

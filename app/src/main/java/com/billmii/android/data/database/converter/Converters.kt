@@ -248,4 +248,19 @@ class Converters {
             OperationResult.FAILED
         }
     }
+    
+    // NotificationType converters
+    @TypeConverter
+    fun fromNotificationType(type: NotificationType): String {
+        return type.name
+    }
+    
+    @TypeConverter
+    fun toNotificationType(value: String): NotificationType {
+        return try {
+            NotificationType.valueOf(value)
+        } catch (e: IllegalArgumentException) {
+            NotificationType.SYSTEM
+        }
+    }
 }

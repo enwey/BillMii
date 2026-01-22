@@ -16,6 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.billmii.android.ui.charts.BarChart
+import com.billmii.android.ui.charts.BarChartData
+import com.billmii.android.ui.charts.PieChart
+import com.billmii.android.ui.charts.PieChartData
 import com.billmii.android.ui.statistics.viewmodel.StatisticsViewModel
 import java.text.DecimalFormat
 
@@ -336,7 +340,7 @@ private fun ReimbursementStatisticsTab(
 }
 
 /**
- * Charts Tab (Placeholder for MPAndroidChart integration)
+ * Charts Tab with Pie Chart and Bar Chart
  */
 @Composable
 private fun ChartsTab(
@@ -353,65 +357,272 @@ private fun ChartsTab(
         return
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // TODO: Integrate MPAndroidChart for actual charts
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+        // Receipt Type Pie Chart
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Icon(
-                        Icons.Default.BarChart,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    Text(
+                        text = "票据类型分布",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "图表功能开发中",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                    )
-                    Text(
-                        text = "将显示饼图、柱状图和折线图",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Pie Chart
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(250.dp)
+                        ) {
+                            val pieData = statistics.receiptTypeStats.map { (type, count) ->
+                                PieChartData(
+                                    value = count.toFloat(),
+                                    color = getTypeColor(type),
+                                    label = type.displayName
+                                )
+                            }
+                            
+                            PieChart(
+                                data = pieData,
+                                holeSize = 0.3f
+                            )
+                        }
+                        
+                        // Legend
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            statistics.receiptTypeStats.forEach { (type, count) ->
+                                LegendItem(
+                                    color = getTypeColor(type),
+                                    label = type.displayName,
+                                    value = count
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
         
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+        // Monthly Bar Chart
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "计划图表",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text("• 按票据类型的饼图", style = MaterialTheme.typography.bodyMedium)
-                Text("• 按月份的柱状图", style = MaterialTheme.typography.bodyMedium)
-                Text("• 金额趋势折线图", style = MaterialTheme.typography.bodyMedium)
-                Text("• 报销状态分布图", style = MaterialTheme.typography.bodyMedium)
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "月度金额统计",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                    ) {
+                        // Sample monthly data - in production, this would come from statistics
+                        val monthlyData = listOf(
+                            BarChartData("1月", 1200f),
+                            BarChartData("2月", 1500f),
+                            BarChartData("3月", 1800f),
+                            BarChartData("4月", 1400f),
+                            BarChartData("5月", 2000f),
+                            BarChartData("6月", 1700f)
+                        )
+                        
+                        BarChart(
+                            data = monthlyData,
+                            barWidth = 30f,
+                            barSpacing = 15f
+                        )
+                    }
+                }
             }
         }
+        
+        // Reimbursement Status Pie Chart
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "报销状态分布",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Pie Chart
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(250.dp)
+                        ) {
+                            val statusData = statistics.reimbursementStatusStats.map { (status, count) ->
+                                PieChartData(
+                                    value = count.toFloat(),
+                                    color = getStatusChartColor(status),
+                                    label = status
+                                )
+                            }
+                            
+                            PieChart(
+                                data = statusData,
+                                holeSize = 0f
+                            )
+                        }
+                        
+                        // Legend
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            statistics.reimbursementStatusStats.forEach { (status, count) ->
+                                LegendItem(
+                                    color = getStatusChartColor(status),
+                                    label = status,
+                                    value = count
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Category Horizontal Bar Chart
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "分类金额统计",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                    ) {
+                        val categoryData = statistics.receiptCategoryStats.map { (category, count) ->
+                            BarChartData(
+                                label = category.displayName,
+                                value = count.toFloat(),
+                                color = getCategoryColor(category)
+                            )
+                        }
+                        
+                        com.billmii.android.ui.charts.HorizontalBarChart(
+                            data = categoryData,
+                            barHeight = 30f,
+                            barSpacing = 15f
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Get color for receipt type
+ */
+private fun getTypeColor(type: com.billmii.android.data.model.ReceiptType): Color {
+    return when (type) {
+        com.billmii.android.data.model.ReceiptType.INVOICE -> Color(0xFF2196F3)
+        com.billmii.android.data.model.ReceiptType.RECEIPT -> Color(0xFF4CAF50)
+        com.billmii.android.data.model.ReceiptType.QUOTA -> Color(0xFFFF9800)
+        com.billmii.android.data.model.ReceiptType.OTHER -> Color(0xFF9C27B0)
+    }
+}
+
+/**
+ * Get color for reimbursement status
+ */
+private fun getStatusChartColor(status: String): Color {
+    return when (status) {
+        "已批准" -> Color(0xFF4CAF50)
+        "已提交" -> Color(0xFF2196F3)
+        "已拒绝" -> Color(0xFFF44336)
+        "草稿" -> Color(0xFF9E9E9E)
+        else -> Color(0xFF607D8B)
+    }
+}
+
+/**
+ * Get color for category
+ */
+private fun getCategoryColor(category: com.billmii.android.data.model.ReceiptCategory): Color {
+    return when (category) {
+        com.billmii.android.data.model.ReceiptCategory.DINING -> Color(0xFFE91E63)
+        com.billmii.android.data.model.ReceiptCategory.TRANSPORT -> Color(0xFF9C27B0)
+        com.billmii.android.data.model.ReceiptCategory.ACCOMMODATION -> Color(0xFF673AB7)
+        com.billmii.android.data.model.ReceiptCategory.OFFICE -> Color(0xFF00BCD4)
+        com.billmii.android.data.model.ReceiptCategory.OTHER -> Color(0xFF607D8B)
+    }
+}
+
+/**
+ * Legend Item
+ */
+@Composable
+private fun LegendItem(
+    color: Color,
+    label: String,
+    value: Int
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .background(color, RoundedCornerShape(4.dp))
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 

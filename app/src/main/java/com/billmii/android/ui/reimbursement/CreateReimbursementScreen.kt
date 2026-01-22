@@ -8,6 +8,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.billmii.android.data.service.VoiceInputService
+import com.billmii.android.ui.components.VoiceInputDialog
 import java.text.NumberFormat
 import java.util.*
 
@@ -26,11 +30,15 @@ import java.util.*
 @Composable
 fun CreateReimbursementScreen(
     onBack: () -> Unit,
-    viewModel: CreateReimbursementViewModel = hiltViewModel()
+    onSuccess: () -> Unit = {},
+    onComplianceCheck: (com.billmii.android.data.model.Reimbursement, List<com.billmii.android.data.model.Receipt>) -> Unit = { _, _ -> },
+    viewModel: CreateReimbursementViewModel = hiltViewModel(),
+    voiceInputService: VoiceInputService
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showReceiptSelector by viewModel.showReceiptSelector.collectAsState()
     val showValidationError by viewModel.showValidationError.collectAsState()
+    var showVoiceDialog by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
@@ -87,7 +95,12 @@ fun CreateReimbursementScreen(
                         label = { Text("描述（可选）") },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
-                        maxLines = 5
+                        maxLines = 5,
+                        trailingIcon = {
+                            IconButton(onClick = { showVoiceDialog = true }) {
+                                Icon(Icons.Default.Mic, contentDescription = "语音输入描述")
+                            }
+                        }
                     )
                     
                     // Applicant
@@ -204,16 +217,39 @@ fun CreateReimbursementScreen(
                             Text("保存草稿")
                         }
                         Button(
-                            onClick = { 
+                            onClick = {
                                 viewModel.submitForApproval()
                                 if (uiState.validationErrors.isEmpty()) {
-                                    onBack()
+                                    onSuccess()
                                 }
                             },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("提交审批")
                         }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Compliance Check Button
+                    Button(
+                        onClick = {
+                            viewModel.prepareComplianceCheck { reimbursement, receipts ->
+                                onComplianceCheck(reimbursement, receipts)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    ) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("合规性检查")
                     }
                 }
             }
@@ -255,6 +291,24 @@ fun CreateReimbursementScreen(
                     Text("确定")
                 }
             }
+        )
+    }
+    
+    // Voice Input Dialog
+    if (showVoiceDialog) {
+        VoiceInputDialog(
+            onDismiss = { showVoiceDialog = false },
+            onResult = { result ->
+                val newDescription = if (uiState.description.isEmpty()) {
+                    result
+                } else {
+                    "${uiState.description}\n$result"
+                }
+                viewModel.updateDescription(newDescription)
+                showVoiceDialog = false
+            },
+            voiceInputService = voiceInputService,
+            prompt = "请说出报销描述..."
         )
     }
 }

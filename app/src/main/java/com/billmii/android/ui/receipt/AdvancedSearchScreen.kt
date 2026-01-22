@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.billmii.android.data.service.VoiceInputService
+import com.billmii.android.ui.components.VoiceInputDialog
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,10 +27,12 @@ import java.util.*
 fun AdvancedSearchScreen(
     onBack: () -> Unit,
     onReceiptClick: (Long) -> Unit,
-    viewModel: AdvancedSearchViewModel = hiltViewModel()
+    viewModel: AdvancedSearchViewModel = hiltViewModel(),
+    voiceInputService: VoiceInputService
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showFilterDialog by viewModel.showFilterDialog.collectAsState()
+    var showVoiceDialog by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
@@ -86,9 +91,16 @@ fun AdvancedSearchScreen(
                         Icon(Icons.Default.Search, contentDescription = null)
                     },
                     trailingIcon = {
-                        if (uiState.searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.clearSearch() }) {
-                                Icon(Icons.Default.Clear, contentDescription = "清除")
+                        Row {
+                            // Voice input button
+                            IconButton(onClick = { showVoiceDialog = true }) {
+                                Icon(Icons.Default.Mic, contentDescription = "语音输入")
+                            }
+                            // Clear button
+                            if (uiState.searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.clearSearch() }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "清除")
+                                }
                             }
                         }
                     },
@@ -141,6 +153,19 @@ fun AdvancedSearchScreen(
             onApply = { newFilters ->
                 viewModel.applyFilters(newFilters)
             }
+        )
+    }
+    
+    // Voice Input Dialog
+    if (showVoiceDialog) {
+        VoiceInputDialog(
+            onDismiss = { showVoiceDialog = false },
+            onResult = { result ->
+                viewModel.updateSearchQuery(result)
+                showVoiceDialog = false
+            },
+            voiceInputService = voiceInputService,
+            prompt = "请说出搜索关键词..."
         )
     }
 }

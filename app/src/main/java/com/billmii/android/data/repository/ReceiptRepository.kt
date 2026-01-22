@@ -520,6 +520,21 @@ class ReceiptRepository @Inject constructor(
     }
     
     /**
+     * Update reimbursement ID for a receipt
+     */
+    suspend fun updateReimbursementId(
+        receiptId: Long,
+        reimbursementId: Long
+    ): Result<Unit> {
+        return try {
+            receiptDao.updateReimbursementId(receiptId, reimbursementId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
      * Unlink receipt from reimbursement
      */
     suspend fun unlinkFromReimbursement(receiptId: Long): Result<Unit> {

@@ -29,8 +29,13 @@ import com.billmii.android.ui.batchoperations.BatchOperationsScreen
 import com.billmii.android.ui.export.ExportScreen
 import com.billmii.android.ui.ocrtemplate.OcrTemplateScreen
 import com.billmii.android.ui.receipt.*
+import com.billmii.android.ui.settings.LanIntegrationScreen
+import com.billmii.android.ui.settings.BiometricSettingsScreen
 import com.billmii.android.ui.reimbursement.*
 import com.billmii.android.ui.settings.*
+import com.billmii.android.ui.components.QrCodeScannerScreen
+import com.billmii.android.data.service.ComplianceValidationService
+import com.billmii.android.data.service.VoiceInputService
 import com.billmii.android.ui.statistics.StatisticsScreen
 import com.billmii.android.ui.theme.BillMiiTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,6 +52,12 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var receiptRepository: ReceiptRepository
+
+    @Inject
+    lateinit var voiceInputService: VoiceInputService
+
+    @Inject
+    lateinit var qrCodeScannerService: QrCodeScannerService
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -82,7 +93,9 @@ class MainActivity : ComponentActivity() {
             BillMiiTheme {
                 MainScreen(
                     onCameraClick = ::startCamera,
-                    onFilesImported = ::handleFilesImported
+                    onFilesImported = ::handleFilesImported,
+                    voiceInputService = voiceInputService,
+                    qrCodeScannerService = qrCodeScannerService
                 )
             }
         }
@@ -91,6 +104,7 @@ class MainActivity : ComponentActivity() {
     private fun checkAndRequestPermissions() {
         val permissions = arrayOf(
             Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
@@ -167,7 +181,9 @@ class MainViewModel(
 @Composable
 fun MainScreen(
     onCameraClick: () -> Unit,
-    onFilesImported: (List<Uri>) -> Unit
+    onFilesImported: (List<Uri>) -> Unit,
+    voiceInputService: VoiceInputService,
+    qrCodeScannerService: QrCodeScannerService
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -250,6 +266,9 @@ fun MainScreen(
                     },
                     onAdvancedSearchClick = {
                         navController.navigate(Screen.AdvancedSearch.route)
+                    },
+                    onQrScanClick = {
+                        navController.navigate(Screen.QrCodeScanner.route)
                     }
                 )
             }
@@ -322,6 +341,9 @@ fun MainScreen(
                     },
                     onClassificationRulesClick = {
                         navController.navigate(Screen.ClassificationRules.route)
+                    },
+                    onLanIntegrationClick = {
+                        navController.navigate(Screen.LanIntegration.route)
                     }
                 )
             }
@@ -360,7 +382,8 @@ fun MainScreen(
                     onBack = { navController.navigateUp() },
                     onReceiptClick = { receiptId ->
                         navController.navigate(Screen.ReceiptDetail.createRoute(receiptId))
-                    }
+                    },
+                    voiceInputService = voiceInputService
                 )
             }
             
@@ -370,7 +393,32 @@ fun MainScreen(
                     onBack = { navController.navigateUp() },
                     onSuccess = {
                         navController.navigateUp()
-                    }
+                    },
+                    onComplianceCheck = { reimbursement, receipts ->
+                        // Navigate to compliance validation screen
+                        // For now, just show a toast (full implementation would need to pass data)
+                        navController.navigate(Screen.ComplianceValidation.route)
+                    },
+                    voiceInputService = voiceInputService
+                )
+            }
+            
+            // Compliance Validation Screen
+            composable(Screen.ComplianceValidation.route) {
+                ComplianceValidationScreen(
+                    reimbursement = com.billmii.android.data.model.Reimbursement(
+                        id = 0,
+                        title = "示例报销单",
+                        totalAmount = 0.0,
+                        applicant = "示例申请人",
+                        department = "示例部门",
+                        description = "",
+                        status = com.billmii.android.data.model.ReimbursementStatus.DRAFT,
+                        createdAt = java.time.LocalDateTime.now().toString(),
+                        updatedAt = java.time.LocalDateTime.now().toString()
+                    ),
+                    receipts = emptyList(),
+                    onBack = { navController.navigateUp() }
                 )
             }
             
@@ -402,6 +450,33 @@ fun MainScreen(
             composable(Screen.Export.route) {
                 ExportScreen(
                     onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Lan Integration Screen
+            composable(Screen.LanIntegration.route) {
+                LanIntegrationScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Biometric Settings Screen
+            composable(Screen.BiometricSettings.route) {
+                BiometricSettingsScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // QR Code Scanner Screen
+            composable(Screen.QrCodeScanner.route) {
+                QrCodeScannerScreen(
+                    onBack = { navController.navigateUp() },
+                    onCodeDetected = { code, qrData ->
+                        // Handle detected QR code
+                        // For now, just navigate back
+                        navController.navigateUp()
+                    },
+                    qrCodeScannerService = qrCodeScannerService
                 )
             }
         }

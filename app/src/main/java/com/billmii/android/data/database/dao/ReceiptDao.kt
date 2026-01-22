@@ -136,6 +136,9 @@ interface ReceiptDao {
     @Query("UPDATE receipts SET reimbursementId = :reimbursementId WHERE id IN (:ids)")
     suspend fun linkToReimbursement(ids: List<Long>, reimbursementId: Long)
     
+    @Query("UPDATE receipts SET reimbursementId = :reimbursementId WHERE id = :id")
+    suspend fun updateReimbursementId(id: Long, reimbursementId: Long)
+    
     @Query("UPDATE receipts SET reimbursementId = NULL WHERE id IN (:ids)")
     suspend fun unlinkFromReimbursement(ids: List<Long>)
     

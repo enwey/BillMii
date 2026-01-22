@@ -29,6 +29,7 @@ fun ReceiptListScreen(
     onFilesImported: (List<Uri>) -> Unit = {},
     onBatchOperationsClick: () -> Unit = {},
     onAdvancedSearchClick: () -> Unit = {},
+    onQrScanClick: () -> Unit = {},
     viewModel: ReceiptListViewModel = hiltViewModel()
 ) {
     val receipts by viewModel.receipts.collectAsStateWithLifecycle()
@@ -60,6 +61,12 @@ fun ReceiptListScreen(
                 modifier = Modifier.padding(end = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                SmallFloatingActionButton(
+                    onClick = onQrScanClick,
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                ) {
+                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan QR code")
+                }
                 SmallFloatingActionButton(
                     onClick = { showFileImportDialog = true },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer

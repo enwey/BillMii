@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.billmii.android.data.model.AppNotification
 import com.billmii.android.data.model.ClassificationRule
 import com.billmii.android.data.model.OperationLog
 import com.billmii.android.data.model.Receipt
@@ -24,9 +25,10 @@ import net.sqlcipher.database.SupportFactory
         Receipt::class,
         Reimbursement::class,
         ClassificationRule::class,
-        OperationLog::class
+        OperationLog::class,
+        AppNotification::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -36,6 +38,7 @@ abstract class BillMiiDatabase : RoomDatabase() {
     abstract fun reimbursementDao(): ReimbursementDao
     abstract fun classificationRuleDao(): ClassificationRuleDao
     abstract fun operationLogDao(): OperationLogDao
+    abstract fun notificationDao(): NotificationDao
     
     companion object {
         private const val DATABASE_NAME = "billmii.db"
@@ -69,7 +72,7 @@ abstract class BillMiiDatabase : RoomDatabase() {
                 DATABASE_NAME
             )
                 .openHelperFactory(factory)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigration() // Only for development
                 .build()
         }
@@ -79,9 +82,33 @@ abstract class BillMiiDatabase : RoomDatabase() {
          */
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Add new columns or tables here
-                // Example:
-                // database.execSQL("ALTER TABLE receipts ADD COLUMN new_column TEXT")
+                // Create app_notifications table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS app_notifications (
+                        id TEXT PRIMARY KEY NOT NULL,
+                        type TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        message TEXT NOT NULL,
+                        timestamp TEXT NOT NULL,
+                        isRead INTEGER NOT NULL DEFAULT 0,
+                        reimbursementId INTEGER,
+                        actionUrl TEXT
+                    )
+                """.trimIndent())
+                
+                // Create index for faster queries
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_notifications_isRead ON app_notifications(isRead)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_notifications_timestamp ON app_notifications(timestamp)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_notifications_type ON app_notifications(type)")
+            }
+        }
+        
+        /**
+         * Migration from version 2 to 3
+         */
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Future migrations
             }
         }
         

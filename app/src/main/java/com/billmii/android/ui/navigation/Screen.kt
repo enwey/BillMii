@@ -55,6 +55,8 @@ sealed class Screen(
     
     object ApprovalWorkflow : Screen("approval_workflow", "审批工作流")
     
+    object ComplianceValidation : Screen("compliance_validation", "合规性检查")
+    
     // OCR screens - OCR界面
     object OcrTemplates : Screen("ocr_templates", "OCR模板")
     
@@ -73,9 +75,16 @@ sealed class Screen(
     
     object OperationLog : Screen("operation_log", "操作日志")
     
+    object LanIntegration : Screen("lan_integration", "局域网集成")
+    
+    object BiometricSettings : Screen("biometric_settings", "生物识别设置")
+    
     // Export screens - 导出界面
     object Export : Screen("export", "数据导出")
     
     // Camera screen - 相机界面
     object Camera : Screen("camera")
+    
+    // QR Code Scanner screen - 二维码扫描界面
+    object QrCodeScanner : Screen("qr_code_scanner", "扫码")
 }

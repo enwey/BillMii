@@ -21,6 +21,8 @@ fun SettingsScreen(
     onOperationLogClick: () -> Unit = {},
     onOcrTemplatesClick: () -> Unit = {},
     onClassificationRulesClick: () -> Unit = {},
+    onLanIntegrationClick: () -> Unit = {},
+    onBiometricClick: () -> Unit = {},
     onExportClick: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -111,7 +113,7 @@ fun SettingsScreen(
             SettingItem(
                 title = "生物识别",
                 description = "使用指纹或面容解锁",
-                onClick = { /* TODO: Show biometric settings */ }
+                onClick = onBiometricClick
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -130,6 +132,18 @@ fun SettingsScreen(
                 title = "分类规则",
                 description = "管理票据自动分类规则",
                 onClick = onClassificationRulesClick
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Data Integration
+            SectionHeader("数据集成")
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            SettingItem(
+                title = "局域网财务软件集成",
+                description = "配置与财务软件的局域网连接",
+                onClick = onLanIntegrationClick
             )
             
             Spacer(modifier = Modifier.height(16.dp))
