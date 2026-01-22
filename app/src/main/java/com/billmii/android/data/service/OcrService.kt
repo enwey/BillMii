@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import com.billmii.android.data.model.*
+import com.billmii.android.ocr.PaddleOCRManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,10 +26,10 @@ import javax.inject.Singleton
  */
 @Singleton
 class OcrService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val paddleOCRManager: PaddleOCRManager
 ) {
     
-    private var paddleOCR: PaddleOCRWrapper? = null
     private var isInitialized = false
     
     // OCR settings
@@ -47,16 +48,9 @@ class OcrService @Inject constructor(
     suspend fun initialize(): Boolean = withContext(Dispatchers.IO) {
         if (isInitialized) return@withContext true
         
-        try {
-            // Initialize PaddleOCR wrapper
-            paddleOCR = PaddleOCRWrapper(context)
-            paddleOCR?.init()
-            isInitialized = true
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        val result = paddleOCRManager.initialize()
+        isInitialized = result
+        result
     }
     
     /**
@@ -69,16 +63,14 @@ class OcrService @Inject constructor(
         
         try {
             val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
-            val ocrResult = paddleOCR?.detectAndRecognize(bitmap) ?: return@withContext OcrResult(
-                success = false,
-                error = "OCR not initialized"
-            )
-            
+            val ocrResult = paddleOCRManager.detectAndRecognize(bitmap)
+             
             OcrResult(
-                success = true,
+                success = ocrResult.success,
                 text = ocrResult.text,
                 boxes = ocrResult.boxes,
-                confidence = ocrResult.confidence
+                confidence = ocrResult.confidence,
+                error = ocrResult.error
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -500,8 +492,7 @@ class OcrService @Inject constructor(
      * Release resources
      */
     fun release() {
-        paddleOCR?.release()
-        paddleOCR = null
+        paddleOCRManager.release()
         isInitialized = false
     }
 }
@@ -608,45 +599,3 @@ data class ReceiptOcrData(
     var restaurantAddress: String = "",
     var restaurantPhone: String = ""
 )
-
-/**
- * PaddleOCR Wrapper
- * Placeholder for actual PaddleOCR implementation
- */
-class PaddleOCRWrapper(private val context: Context) {
-    
-    private var nativeHandle: Long = 0
-    
-    /**
-     * Initialize native PaddleOCR
-     */
-    fun init() {
-        // TODO: Initialize actual PaddleOCR native library
-        // This is a placeholder implementation
-        // In production, you would:
-        // 1. Load native library: System.loadLibrary("paddleocr")
-        // 2. Call native init function
-        // 3. Load model files from assets
-    }
-    
-    /**
-     * Detect and recognize text
-     */
-    fun detectAndRecognize(bitmap: Bitmap): OcrResult {
-        // TODO: Implement actual PaddleOCR detection
-        // This is a placeholder that returns mock data
-        return OcrResult(
-            success = true,
-            text = "Mock OCR result\nTotal amount: ¥100.00",
-            boxes = emptyList(),
-            confidence = 0.85f
-        )
-    }
-    
-    /**
-     * Release native resources
-     */
-    fun release() {
-        // TODO: Release native resources
-    }
-}

@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -95,6 +96,9 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("org.opencv:opencv-android:4.8.0")
     
+    // Coil for Compose image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    
     // Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     
@@ -124,6 +128,11 @@ dependencies {
     
     // Work Manager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
+    // Hilt for dependency injection
+    implementation("com.google.dagger:hilt-android:2.48.1")
+    ksp("com.google.dagger:hilt-compiler:2.48.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     
     // Testing
     testImplementation("junit:junit:4.13.2")

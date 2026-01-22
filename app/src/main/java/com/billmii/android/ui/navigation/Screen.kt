@@ -25,7 +25,7 @@ sealed class Screen(
     }
     
     // Receipt screens - 票据界面
-    object ReceiptList : Screen("receipt_list")
+    object ReceiptList : Screen("receipt_list", "票据")
     
     object ReceiptDetail : Screen(
         route = "receipt_detail/{receiptId}",
@@ -35,7 +35,7 @@ sealed class Screen(
     )
     
     // Reimbursement screens - 报销界面
-    object ReimbursementList : Screen("reimbursement_list")
+    object ReimbursementList : Screen("reimbursement_list", "报销")
     
     object ReimbursementDetail : Screen(
         route = "reimbursement_detail/{reimbursementId}",
@@ -50,10 +50,10 @@ sealed class Screen(
     object Camera : Screen("camera")
     
     // Statistics screen - 统计界面
-    object Statistics : Screen("statistics")
+    object Statistics : Screen("statistics", "统计")
     
     // Settings screen - 设置界面
-    object Settings : Screen("settings")
+    object Settings : Screen("settings", "设置")
     
     // Archive screen - 归档界面
     object Archive : Screen("archive")

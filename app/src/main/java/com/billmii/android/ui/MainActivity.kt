@@ -28,6 +28,7 @@ import com.billmii.android.ui.receipt.*
 import com.billmii.android.ui.reimbursement.*
 import com.billmii.android.ui.settings.SettingsScreen
 import com.billmii.android.ui.settings.viewmodel.SettingsViewModel
+import com.billmii.android.ui.statistics.StatisticsScreen
 import com.billmii.android.ui.theme.BillMiiTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -292,20 +293,5 @@ fun MainScreen(
                 )
             }
         }
-    }
-}
-
-/**
- * Statistics Screen placeholder
- */
-@Composable
-fun StatisticsScreen(paddingValues: PaddingValues) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
-        contentAlignment = androidx.compose.ui.Alignment.Center
-    ) {
-        Text("统计分析功能开发中...")
     }
 }

@@ -8,7 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.billmii.android.ui.receipt.viewmodel.ReceiptDetailViewModel
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -254,15 +256,34 @@ fun ReceiptImagePreview(
     filePath: String,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Implement image loading with Coil or Glide
+    val file = File(filePath)
+    
     Card(
         modifier = modifier
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = androidx.compose.ui.Alignment.Center
-        ) {
-            Text("票据图片预览\n$filePath")
+        if (file.exists()) {
+            AsyncImage(
+                model = file,
+                contentDescription = "票据图片",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                ) {
+                    androidx.compose.material.icons.Icons.Outlined.ImageBroken
+                    Text(
+                        text = "图片不存在",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }
