@@ -65,6 +65,9 @@ interface ReceiptDao {
     @Query("SELECT * FROM receipts WHERE reimbursementId = :reimbursementId ORDER BY createdAt DESC")
     fun getByReimbursementId(reimbursementId: Long): Flow<List<Receipt>>
     
+    @Query("SELECT * FROM receipts WHERE reimbursementId IS NULL ORDER BY createdAt DESC")
+    fun getUnlinkedReceipts(): Flow<List<Receipt>>
+    
     // Search operations - 搜索操作
     
     @Query("""

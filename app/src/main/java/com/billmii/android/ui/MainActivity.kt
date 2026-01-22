@@ -24,10 +24,13 @@ import com.billmii.android.data.model.ReceiptType
 import com.billmii.android.data.repository.ReceiptRepository
 import com.billmii.android.ui.camera.CameraActivity
 import com.billmii.android.ui.navigation.Screen
+import com.billmii.android.ui.advancedsearch.AdvancedSearchScreen
+import com.billmii.android.ui.batchoperations.BatchOperationsScreen
+import com.billmii.android.ui.export.ExportScreen
+import com.billmii.android.ui.ocrtemplate.OcrTemplateScreen
 import com.billmii.android.ui.receipt.*
 import com.billmii.android.ui.reimbursement.*
-import com.billmii.android.ui.settings.SettingsScreen
-import com.billmii.android.ui.settings.viewmodel.SettingsViewModel
+import com.billmii.android.ui.settings.*
 import com.billmii.android.ui.statistics.StatisticsScreen
 import com.billmii.android.ui.theme.BillMiiTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -241,7 +244,13 @@ fun MainScreen(
                         navController.navigate(Screen.ReceiptDetail.createRoute(receiptId))
                     },
                     onCameraClick = onCameraClick,
-                    onFilesImported = onFilesImported
+                    onFilesImported = onFilesImported,
+                    onBatchOperationsClick = {
+                        navController.navigate(Screen.BatchOperations.route)
+                    },
+                    onAdvancedSearchClick = {
+                        navController.navigate(Screen.AdvancedSearch.route)
+                    }
                 )
             }
 
@@ -263,6 +272,12 @@ fun MainScreen(
                     paddingValues = paddingValues,
                     onReimbursementClick = { reimbursementId ->
                         navController.navigate(Screen.ReimbursementDetail.createRoute(reimbursementId))
+                    },
+                    onCreateReimbursementClick = {
+                        navController.navigate(Screen.CreateReimbursement.route)
+                    },
+                    onApprovalWorkflowClick = {
+                        navController.navigate(Screen.ApprovalWorkflow.route)
                     }
                 )
             }
@@ -282,14 +297,111 @@ fun MainScreen(
             // Statistics Screen
             composable(Screen.Statistics.route) {
                 StatisticsScreen(
-                    paddingValues = paddingValues
+                    paddingValues = paddingValues,
+                    onExportClick = {
+                        navController.navigate(Screen.Export.route)
+                    }
                 )
             }
 
             // Settings Screen
             composable(Screen.Settings.route) {
                 SettingsScreen(
-                    paddingValues = paddingValues
+                    paddingValues = paddingValues,
+                    onBackupRestoreClick = {
+                        navController.navigate(Screen.BackupRestore.route)
+                    },
+                    onArchivePathManagementClick = {
+                        navController.navigate(Screen.ArchivePathManagement.route)
+                    },
+                    onOperationLogClick = {
+                        navController.navigate(Screen.OperationLog.route)
+                    },
+                    onOcrTemplatesClick = {
+                        navController.navigate(Screen.OcrTemplates.route)
+                    },
+                    onClassificationRulesClick = {
+                        navController.navigate(Screen.ClassificationRules.route)
+                    }
+                )
+            }
+            
+            // Backup Restore Screen
+            composable(Screen.BackupRestore.route) {
+                BackupRestoreScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Archive Path Management Screen
+            composable(Screen.ArchivePathManagement.route) {
+                ArchivePathManagementScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Operation Log Screen
+            composable(Screen.OperationLog.route) {
+                OperationLogScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Batch Operations Screen
+            composable(Screen.BatchOperations.route) {
+                BatchOperationsScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Advanced Search Screen
+            composable(Screen.AdvancedSearch.route) {
+                AdvancedSearchScreen(
+                    onBack = { navController.navigateUp() },
+                    onReceiptClick = { receiptId ->
+                        navController.navigate(Screen.ReceiptDetail.createRoute(receiptId))
+                    }
+                )
+            }
+            
+            // Create Reimbursement Screen
+            composable(Screen.CreateReimbursement.route) {
+                CreateReimbursementScreen(
+                    onBack = { navController.navigateUp() },
+                    onSuccess = {
+                        navController.navigateUp()
+                    }
+                )
+            }
+            
+            // Approval Workflow Screen
+            composable(Screen.ApprovalWorkflow.route) {
+                ApprovalWorkflowScreen(
+                    onBack = { navController.navigateUp() },
+                    onReimbursementDetail = { reimbursementId ->
+                        navController.navigate(Screen.ReimbursementDetail.createRoute(reimbursementId))
+                    }
+                )
+            }
+            
+            // OCR Templates Screen
+            composable(Screen.OcrTemplates.route) {
+                OcrTemplateScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Classification Rules Screen
+            composable(Screen.ClassificationRules.route) {
+                ClassificationRuleScreen(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            // Export Screen
+            composable(Screen.Export.route) {
+                ExportScreen(
+                    onBack = { navController.navigateUp() }
                 )
             }
         }

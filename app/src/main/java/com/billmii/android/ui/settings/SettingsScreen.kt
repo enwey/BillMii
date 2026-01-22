@@ -16,6 +16,12 @@ import com.billmii.android.ui.settings.viewmodel.SettingsViewModel
 @Composable
 fun SettingsScreen(
     paddingValues: PaddingValues,
+    onBackupRestoreClick: () -> Unit = {},
+    onArchivePathManagementClick: () -> Unit = {},
+    onOperationLogClick: () -> Unit = {},
+    onOcrTemplatesClick: () -> Unit = {},
+    onClassificationRulesClick: () -> Unit = {},
+    onExportClick: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val ocrMode by viewModel.ocrMode.collectAsStateWithLifecycle()
@@ -68,6 +74,30 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
+            // Data Management
+            SectionHeader("数据管理")
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            SettingItem(
+                title = "备份与恢复",
+                description = "备份和恢复应用数据",
+                onClick = onBackupRestoreClick
+            )
+            
+            SettingItem(
+                title = "归档路径管理",
+                description = "管理票据归档路径",
+                onClick = onArchivePathManagementClick
+            )
+            
+            SettingItem(
+                title = "操作日志",
+                description = "查看应用操作记录",
+                onClick = onOperationLogClick
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             // Security Settings
             SectionHeader("安全设置")
             Spacer(modifier = Modifier.height(8.dp))
@@ -82,6 +112,24 @@ fun SettingsScreen(
                 title = "生物识别",
                 description = "使用指纹或面容解锁",
                 onClick = { /* TODO: Show biometric settings */ }
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // OCR & Classification
+            SectionHeader("OCR与分类")
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            SettingItem(
+                title = "OCR模板",
+                description = "管理自定义OCR识别模板",
+                onClick = onOcrTemplatesClick
+            )
+            
+            SettingItem(
+                title = "分类规则",
+                description = "管理票据自动分类规则",
+                onClick = onClassificationRulesClick
             )
             
             Spacer(modifier = Modifier.height(16.dp))

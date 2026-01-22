@@ -27,6 +27,8 @@ fun ReceiptListScreen(
     onReceiptClick: (Long) -> Unit,
     onCameraClick: () -> Unit,
     onFilesImported: (List<Uri>) -> Unit = {},
+    onBatchOperationsClick: () -> Unit = {},
+    onAdvancedSearchClick: () -> Unit = {},
     viewModel: ReceiptListViewModel = hiltViewModel()
 ) {
     val receipts by viewModel.receipts.collectAsStateWithLifecycle()
@@ -41,11 +43,14 @@ fun ReceiptListScreen(
             TopAppBar(
                 title = { Text("票据管理") },
                 actions = {
+                    IconButton(onClick = onAdvancedSearchClick) {
+                        Icon(Icons.Default.Search, contentDescription = "高级搜索")
+                    }
+                    IconButton(onClick = onBatchOperationsClick) {
+                        Icon(Icons.Default.SelectAll, contentDescription = "批量操作")
+                    }
                     IconButton(onClick = { showFileImportDialog = true }) {
                         Icon(Icons.Default.CloudUpload, contentDescription = "Import files")
-                    }
-                    IconButton(onClick = { /* TODO: Show filter dialog */ }) {
-                        Text("筛选")
                     }
                 }
             )

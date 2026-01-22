@@ -182,6 +182,9 @@ interface OperationLogDao {
     @Query("UPDATE operation_logs SET isDeleted = true WHERE operationTime < :beforeDate")
     suspend fun softDeleteOldLogs(beforeDate: Date)
     
+    @Query("UPDATE operation_logs SET isDeleted = true")
+    suspend fun deleteAll()
+    
     // Query without deleted logs - 查询未删除的日志
     
     @Query("SELECT * FROM operation_logs WHERE isDeleted = false ORDER BY operationTime DESC")

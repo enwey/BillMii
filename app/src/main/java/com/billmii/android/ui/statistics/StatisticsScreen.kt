@@ -27,6 +27,7 @@ import java.text.DecimalFormat
 @Composable
 fun StatisticsScreen(
     paddingValues: PaddingValues,
+    onExportClick: () -> Unit = {},
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val statistics by viewModel.statistics.collectAsStateWithLifecycle()
@@ -40,6 +41,9 @@ fun StatisticsScreen(
             TopAppBar(
                 title = { Text("统计分析") },
                 actions = {
+                    IconButton(onClick = onExportClick) {
+                        Icon(Icons.Default.Share, contentDescription = "导出")
+                    }
                     IconButton(onClick = { viewModel.refreshStatistics() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "刷新")
                     }

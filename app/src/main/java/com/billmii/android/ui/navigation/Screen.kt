@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
  */
 sealed class Screen(
     val route: String,
+    val title: String? = null,
     val arguments: List<androidx.navigation.NavArgument> = emptyList()
 ) {
     
@@ -29,46 +30,52 @@ sealed class Screen(
     
     object ReceiptDetail : Screen(
         route = "receipt_detail/{receiptId}",
+        title = "票据详情",
         arguments = listOf(
             navArgument("receiptId") { type = NavType.LongType }
         )
     )
+    
+    object BatchOperations : Screen("batch_operations", "批量操作")
+    
+    object AdvancedSearch : Screen("advanced_search", "高级搜索")
     
     // Reimbursement screens - 报销界面
     object ReimbursementList : Screen("reimbursement_list", "报销")
     
     object ReimbursementDetail : Screen(
         route = "reimbursement_detail/{reimbursementId}",
+        title = "报销详情",
         arguments = listOf(
             navArgument("reimbursementId") { type = NavType.LongType }
         )
     )
     
-    object CreateReimbursement : Screen("create_reimbursement")
+    object CreateReimbursement : Screen("create_reimbursement", "创建报销")
     
-    // Camera screen - 相机界面
-    object Camera : Screen("camera")
+    object ApprovalWorkflow : Screen("approval_workflow", "审批工作流")
+    
+    // OCR screens - OCR界面
+    object OcrTemplates : Screen("ocr_templates", "OCR模板")
+    
+    // Classification screens - 分类界面
+    object ClassificationRules : Screen("classification_rules", "分类规则")
     
     // Statistics screen - 统计界面
     object Statistics : Screen("statistics", "统计")
     
-    // Settings screen - 设置界面
+    // Settings screens - 设置界面
     object Settings : Screen("settings", "设置")
     
-    // Archive screen - 归档界面
-    object Archive : Screen("archive")
+    object BackupRestore : Screen("backup_restore", "备份与恢复")
     
-    // Search screen - 搜索界面
-    object Search : Screen("search")
+    object ArchivePathManagement : Screen("archive_path_management", "归档路径管理")
     
-    // Classification rules screen - 分类规则界面
-    object ClassificationRules : Screen("classification_rules")
+    object OperationLog : Screen("operation_log", "操作日志")
     
-    object CreateClassificationRule : Screen("create_classification_rule")
+    // Export screens - 导出界面
+    object Export : Screen("export", "数据导出")
     
-    // Backup screen - 备份界面
-    object Backup : Screen("backup")
-    
-    // Export screen - 导出界面
-    object Export : Screen("export")
+    // Camera screen - 相机界面
+    object Camera : Screen("camera")
 }

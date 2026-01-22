@@ -495,6 +495,122 @@ class OcrService @Inject constructor(
         paddleOCRManager.release()
         isInitialized = false
     }
+    
+    /**
+     * Get all OCR templates
+     */
+    fun getAllTemplates(): List<OcrTemplate> {
+        // In a real implementation, this would load from database
+        // For now, return empty list or default templates
+        return emptyList()
+    }
+    
+    /**
+     * Get template by ID
+     */
+    fun getTemplateById(id: Long): OcrTemplate? {
+        // In a real implementation, this would load from database
+        return null
+    }
+    
+    /**
+     * Create template
+     */
+    suspend fun createTemplate(template: OcrTemplate): Long {
+        // In a real implementation, this would save to database
+        return 0L
+    }
+    
+    /**
+     * Update template
+     */
+    suspend fun updateTemplate(template: OcrTemplate) {
+        // In a real implementation, this would update in database
+    }
+    
+    /**
+     * Delete template
+     */
+    suspend fun deleteTemplate(id: Long) {
+        // In a real implementation, this would delete from database
+    }
+    
+    /**
+     * Apply template to OCR result
+     */
+    fun applyTemplate(template: OcrTemplate, ocrResult: OcrResult): Map<String, String> {
+        val extractedData = mutableMapOf<String, String>()
+        
+        template.fields.forEach { field ->
+            val value = extractByField(field, ocrResult.text)
+            if (value.isNotEmpty() || !field.required) {
+                extractedData[field.fieldName] = value
+            }
+        }
+        
+        return extractedData
+    }
+    
+    /**
+     * Extract data by field definition
+     */
+    private fun extractByField(field: OcrTemplateField, text: String): String {
+        return when (field.extractionType) {
+            ExtractionType.TEXT -> extractText(text, field.keyword, field.regexPattern)
+            ExtractionType.AMOUNT -> extractAmount(text, field.keyword)
+            ExtractionType.DATE -> extractDateText(text, field.keyword)
+            ExtractionType.NUMBER -> extractNumber(text, field.keyword)
+        }
+    }
+    
+    /**
+     * Extract text with keyword
+     */
+    private fun extractText(text: String, keyword: String, pattern: String?): String {
+        if (pattern != null) {
+            val regex = Regex(pattern)
+            val match = regex.find(text)
+            return match?.groupValues?.getOrNull(1) ?: ""
+        }
+        
+        // Simple keyword extraction
+        val keywordIndex = text.indexOf(keyword)
+        if (keywordIndex == -1) return ""
+        
+        val afterKeyword = text.substring(keywordIndex + keyword.length)
+        val endIndex = afterKeyword.indexOfAny(charArrayOf('\n', '\r'))
+        return if (endIndex == -1) afterKeyword.trim() else afterKeyword.substring(0, endIndex).trim()
+    }
+    
+    /**
+     * Extract amount with keyword
+     */
+    private fun extractAmount(text: String, keyword: String): String {
+        val pattern = "$keyword[:：]?\\s*[¥￥]?(\\d+(?:\\.\\d{1,2})?)"
+        val regex = Regex(pattern)
+        val match = regex.find(text)
+        return match?.groupValues?.getOrNull(1) ?: ""
+    }
+    
+    /**
+     * Extract date text with keyword
+     */
+    private fun extractDateText(text: String, keyword: String): String {
+        val pattern = "$keyword[:：]?\\s*(\\d{4}[-年](\\d{1,2})[-月](\\d{1,2}))"
+        val regex = Regex(pattern)
+        val match = regex.find(text)
+        return match?.groupValues?.getOrNull(1) ?: ""
+    }
+    
+    /**
+     * Extract number with keyword
+     */
+    private fun extractNumber(text: String, keyword: String): String {
+        val pattern = "$keyword[:：]?\\s*(\\d+(?:\\.\\d+)?)"
+        val regex = Regex(pattern)
+        val match = regex.find(text)
+        return match?.groupValues?.getOrNull(1) ?: ""
+    }
 }
 
 /**
